@@ -1,0 +1,96 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>添加父级区域</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="/Content/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/Content/css/public.css" media="all">
+    <script src="/Content/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        layui.use(['form', 'layedit', 'laydate'], function () {
+            var $ = layui.jquery,
+                form = layui.form,
+                layer = layui.layer;
+
+          
+            $("#btnAdd").click(function () {
+                var o = new Object();
+                o.ARName = $("#ARName").val();
+                o.ARReamle = $("#ARReamle").val();
+                o.ARState = $("input[name='state']:checked").val();;
+                $.post("/Partitions/RegionalManagement/AddDaq", o, function (d) {
+                    if (d == "Success") {
+                        //layer.msg("添加成功！");
+                        var index = layer.alert("添加成功！", {
+                            title: '最终的提交信息'
+                        }, function () {
+                            // 关闭弹出层
+                            layer.close(index);
+                            var iframeIndex = parent.layer.getFrameIndex(window.name);
+                          
+
+                        });
+                    }
+                    else {
+                        layer.msg("添加失败！");
+                    }
+                });
+            });
+
+            //监听提交
+            //form.on('submit(step)', function (data) {
+            //    //layer.msg(data.field);
+
+            //    //layer.alert(JSON.stringify(data.field), {
+            //    //    title: '最终的提交信息'
+            //    //})
+            //    //return false;
+            //});
+        });
+    </script>
+</head>
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <form class="layui-form" action="" lay-filter="example">
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">区名</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="ARName" name="ARName" lay-verify="title" autocomplete="off" placeholder="请输入区名" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="ARReamle" name="ARReamle" lay-verify="title" autocomplete="off" placeholder="请输入备注" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-block">
+                        <input type="radio" name="state" value="0" title="启用" checked="">
+                        <input type="radio" name="state" value="1" title="禁用">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        @*<button class="layui-btn" lay-submit="" lay-filter="step">立即提交</button>*@
+                        <input class="layui-btn" id="btnAdd" value="立即提交" />
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
+

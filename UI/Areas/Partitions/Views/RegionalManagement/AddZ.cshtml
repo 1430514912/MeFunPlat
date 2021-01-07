@@ -1,0 +1,79 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Add</title>
+    <script src="~/scripts/jquery-1.10.2.min.js"></script>
+    <link rel="stylesheet" href="/Content/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/Content/css/public.css" media="all">
+    <script src="/Content/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        //定义表单对象
+        var form = null;
+        //加载的时候获取layui的对象
+        layui.use('form', function () {
+            form = layui.form;
+            //为当前表单的下拉框付选择事件
+            form.on("select", function (data) {
+                alert(data.elem);//表单
+                alert(data.value);//value
+                alert($("#city+div .layui-this").text()); //得到美化后的DOM对象
+            })
+
+        });
+
+        $(function () {
+            $.post("/Partitions/RegionalManagement/GetCity", "", function (data) {
+                var options = "<option>请选择</option>";
+                for (var i = 0; i < data.length; i++) {
+                    options += "<option value='" + data[i].ARIndex + "'>" + data[i].ARName + "</option>";
+                }
+                //为标签写入option值
+                $("#city").html(options);
+                //加载option值
+                form.render('select');//需要加上本句代码才能显示出添加的option
+            })
+
+            $("#btnSelect").click(function () {
+                //获取下拉值 value
+                alert($("#city").val());
+                //获取下拉列文本值 +div .layui-this固定代码
+                alert($("#city+div .layui-this").text());
+            })
+
+            $("#btnClose").click(function () {
+                var index = parent.layer.getFrameIndex(window.name);//根据当前窗口的名字获取当前窗口的索引
+                parent.layer.close(index);//关闭指定索引的窗口
+            })
+
+        })
+    </script>
+</head>
+<body>
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+            <label class="layui-form-label">区域名</label>
+            <div class="layui-input-block">
+                <input type="text" name="title" required lay-verify="required" placeholder="请输入姓名" autocomplete="off" class="layui-input" style="width:200px">
+            </div>
+        </div>
+
+        <div class="layui-form-item">
+            <label class="layui-form-label">所属大区</label>
+            <div class="layui-input-block" style="width:100px">
+                <select id="city" name="city" lay-verify="required">
+                    <option value=""></option>
+                </select>
+            </div>
+        </div>
+        <input type="button" class="layui-btn" value="关闭" id="btnClose" />
+        <input type="button" value="获取下拉框值" id="btnSelect" />
+    </form>
+</body>
+</html>

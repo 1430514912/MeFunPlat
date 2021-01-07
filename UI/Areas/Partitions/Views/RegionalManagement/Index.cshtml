@@ -1,0 +1,162 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>区域管理</title>
+    <link rel="stylesheet" href="/Content/lib/layui-v2.5.5/css/layui.css" media="all">
+    <link rel="stylesheet" href="/Content/css/public.css" media="all">
+    <style>
+        .layui-btn:not(.layui-btn-lg ):not(.layui-btn-sm):not(.layui-btn-xs) {
+            height: 34px;
+            line-height: 34px;
+            padding: 0 8px;
+        }
+    </style>
+    <!-- 操作列 -->
+    <script type="text/html" id="auth-state">
+        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="edit">修改</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del">删除</a>
+    </script>
+
+    <script src="/Content/lib/layui-v2.5.5/layui.js" charset="utf-8"></script>
+    <script src="/Content/js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+    <script>
+    layui.use(['table', 'treetable'], function () {
+        var $ = layui.jquery;
+        var table = layui.table;
+        var treetable = layui.treetable;
+
+        // 渲染表格
+        layer.load(2);
+        treetable.render({
+            treeColIndex: 1,
+            treeSpid: -1,
+            treeIdName: 'ARID',
+            treePidName: 'ARParent',
+            elem: '#munu-table',
+            url: '/Partitions/RegionalManagement/GetData',
+            page: false,
+            cols: [[
+                {type: 'numbers'},
+                { field: 'ARName', minWidth: 100, title: '区域名称'},
+                { field: 'ARIndex', width: 80, align: 'center', title: '排序号'},
+                {
+                    field: 'ARParent', width: 80, align: 'center', templet: function (d) {
+                        if (d.ARParent ==-1) {
+                            return '<span class="layui-badge layui-bg-blue">大区域</span>';
+                        } else {
+                            return '<span class="layui-badge-rim">小区域</span>';
+                        }
+                    }, title: '类型'
+                },
+                {templet: '#auth-state', width: 120, align: 'center', title: '操作'}
+            ]],
+            done: function () {
+                layer.closeAll('loading');
+            }
+        });
+
+        $('#btn-expand').click(function () {
+            treetable.expandAll('#munu-table');
+        });
+
+        $('#btn-fold').click(function () {
+            treetable.foldAll('#munu-table');
+        });
+
+        //监听工具条
+        table.on('tool(munu-table)', function (obj) {
+            var data = obj.data;
+            var layEvent = obj.event;
+            if (layEvent === 'del') {
+                layer.confirm('真的删除行么', function (index) {
+                    if (data.ARParent == -1) {
+                        layer.msg("父级区域不可以删除！");
+                    } else {
+                    $.post("/LabourArea/Employee/DelAnnouncer", data, function (d) {
+                        if (d == "Success") {
+                            layer.msg("删除成功！");
+                            obj.del();
+                            layer.close(index);
+                        }
+                        else {
+                            layer.msg("删除失败！");
+                        }
+                        });
+
+                    }
+                });
+            } else if (layEvent === 'edit') {
+                var index = layer.open({
+                    title: '编辑用户',
+                    type: 2,
+                    shade: 0.2,
+                    maxmin: true,
+                    shadeClose: true,
+                    area: ['100%', '100%'],
+                    content: '../page/table/edit.html',
+                });
+                $(window).on("resize", function () {
+                    layer.full(index);
+                });
+                return false;
+            }
+        });
+        $('#btn-Addf').click(function () {
+            var index = layer.open({
+                title: '添加父级区域',
+                type: 2,
+                shade: 0.2,
+                maxmin: true,
+                shadeClose: true,
+                area: ['100%', '100%'],
+                content: '/Partitions/RegionalManagement/Addf',
+            });
+            $(window).on("resize", function () {
+                layer.full(index);
+                parent.layer.close(iframeIndex);
+            });
+        });
+
+        $('#btn-AddZ').click(function () {
+            var index = layer.open({
+                title: '添加父级区域',
+                type: 2,
+                shade: 0.2,
+                maxmin: true,
+                shadeClose: true,
+                area: ['100%', '100%'],
+                content: '/Partitions/RegionalManagement/AddZ',
+            });
+            $(window).on("resize", function () {
+                layer.full(index);
+                parent.layer.close(iframeIndex);
+            });
+        });
+    });
+    </script>
+</head>
+<body>
+    <div class="layuimini-container">
+        <div class="layuimini-main">
+            <div>
+                <div class="layui-btn-group">
+                    <button class="layui-btn" id="btn-expand">全部展开</button>
+                    <button class="layui-btn layui-btn-normal" id="btn-fold">全部折叠</button>
+                </div>
+                <div>
+                    <button class="layui-btn" id="btn-Addf">添加父区</button>
+                    <button class="layui-btn"  id="btn-AddZ">添加子区</button>
+                </div>
+                <table id="munu-table" class="layui-table" lay-filter="munu-table"></table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
